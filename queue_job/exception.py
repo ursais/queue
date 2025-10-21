@@ -41,3 +41,14 @@ class NothingToDoJob(JobError):
 
 class ChannelNotFound(BaseQueueJobError):
     """A channel could not be found"""
+
+
+class TimeoutJobError(RetryableJobError):
+    """A job timed out during execution.
+
+    This exception is raised when a job execution exceeds the configured timeout.
+    It inherits from RetryableJobError so it will be counted as a retry attempt.
+    """
+
+    def __init__(self, msg, seconds=None, ignore_retry=False):
+        super().__init__(msg, seconds=seconds, ignore_retry=ignore_retry)

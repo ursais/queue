@@ -14,7 +14,7 @@ from random import randint
 
 import odoo
 
-from .exception import FailedJobError, NoSuchJobError, RetryableJobError
+from .exception import FailedJobError, NoSuchJobError, RetryableJobError, TimeoutJobError
 
 WAIT_DEPENDENCIES = "wait_dependencies"
 PENDING = "pending"
@@ -515,6 +515,18 @@ class Job:
         self.retry += 1
         try:
             self.result = self.func(*tuple(self.args), **self.kwargs)
+        except (TimeoutError, TimeoutJobError) as err:
+            # Handle timeout exceptions as retryable errors
+            if isinstance(err, TimeoutJobError):
+                # If it's already a TimeoutJobError, re-raise it
+                raise
+            else:
+                # Convert TimeoutError to TimeoutJobError
+                raise TimeoutJobError(
+                    f"Job execution timed out: {str(err)}", 
+                    seconds=None, 
+                    ignore_retry=False
+                ) from err
         except RetryableJobError as err:
             if err.ignore_retry:
                 self.retry -= 1
