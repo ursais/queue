@@ -3,14 +3,8 @@
 # license lgpl-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
 import odoo.tests.common as common
-
-from odoo.addons.queue_job.delay import (
-    Delayable,
-    DelayableChain,
-    DelayableGroup,
-    chain,
-    group,
-)
+from odoo.addons.queue_job.delay import (Delayable, DelayableChain,
+                                         DelayableGroup, chain, group)
 
 
 class TestDelayable(common.TransactionCase):

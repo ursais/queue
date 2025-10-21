@@ -6,24 +6,15 @@ import random
 from datetime import datetime, timedelta
 
 from odoo import _, api, exceptions, fields, models
+from odoo.addons.base_sparse_field.models.fields import Serialized
 from odoo.osv import expression
 from odoo.tools import config, html_escape
-
-from odoo.addons.base_sparse_field.models.fields import Serialized
 
 from ..delay import Graph
 from ..exception import JobError
 from ..fields import JobSerialized
-from ..job import (
-    CANCELLED,
-    DONE,
-    FAILED,
-    PENDING,
-    STARTED,
-    STATES,
-    WAIT_DEPENDENCIES,
-    Job,
-)
+from ..job import (CANCELLED, DONE, FAILED, PENDING, STARTED, STATES,
+                   WAIT_DEPENDENCIES, Job)
 
 _logger = logging.getLogger(__name__)
 

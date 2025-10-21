@@ -5,11 +5,10 @@ import os
 from unittest import mock
 
 import odoo.tests.common as common
-from odoo.tools import mute_logger
-
 from odoo.addons.queue_job.delay import Delayable
 from odoo.addons.queue_job.job import identity_exact
 from odoo.addons.queue_job.tests.common import mock_with_delay, trap_jobs
+from odoo.tools import mute_logger
 
 
 class TestDelayMocks(common.TransactionCase):

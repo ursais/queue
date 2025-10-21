@@ -6,7 +6,6 @@ from datetime import date, datetime
 
 import dateutil
 import lxml
-
 from odoo import fields, models
 from odoo.tools.func import lazy
 

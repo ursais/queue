@@ -8,11 +8,10 @@ import time
 import traceback
 from io import StringIO
 
-from psycopg2 import OperationalError, errorcodes
-from werkzeug.exceptions import BadRequest, Forbidden
-
 from odoo import SUPERUSER_ID, _, api, http, registry, tools
 from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
+from psycopg2 import OperationalError, errorcodes
+from werkzeug.exceptions import BadRequest, Forbidden
 
 from ..delay import chain, group
 from ..exception import FailedJobError, NothingToDoJob, RetryableJobError

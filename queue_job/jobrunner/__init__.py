@@ -3,8 +3,8 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
 import logging
-from threading import Thread
 import time
+from threading import Thread
 
 from odoo.service import server
 from odoo.tools import config

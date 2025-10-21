@@ -6,24 +6,13 @@ from datetime import datetime, timedelta
 from unittest import mock
 
 import odoo.tests.common as common
-
 from odoo.addons.queue_job import identity_exact
 from odoo.addons.queue_job.delay import DelayableGraph
-from odoo.addons.queue_job.exception import (
-    FailedJobError,
-    NoSuchJobError,
-    RetryableJobError,
-)
-from odoo.addons.queue_job.job import (
-    DONE,
-    ENQUEUED,
-    FAILED,
-    PENDING,
-    RETRY_INTERVAL,
-    STARTED,
-    WAIT_DEPENDENCIES,
-    Job,
-)
+from odoo.addons.queue_job.exception import (FailedJobError, NoSuchJobError,
+                                             RetryableJobError)
+from odoo.addons.queue_job.job import (DONE, ENQUEUED, FAILED, PENDING,
+                                       RETRY_INTERVAL, STARTED,
+                                       WAIT_DEPENDENCIES, Job)
 
 from .common import JobCommonCase
 

@@ -1,10 +1,9 @@
 # copyright 2018 Camptocamp
 # license lgpl-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
-from psycopg2 import IntegrityError
-
 import odoo
 from odoo.tests import common
+from psycopg2 import IntegrityError
 
 
 class TestJobChannel(common.TransactionCase):

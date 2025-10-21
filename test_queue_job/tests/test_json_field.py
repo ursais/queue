@@ -3,11 +3,10 @@
 
 import json
 
-from odoo.tests import common
-
 # pylint: disable=odoo-addons-relative-import
 # we are testing, we want to test as if we were an external consumer of the API
 from odoo.addons.queue_job.fields import JobEncoder
+from odoo.tests import common
 
 
 class TestJsonField(common.TransactionCase):

@@ -3,7 +3,6 @@
 
 import odoo.tests.common as common
 from odoo import exceptions
-
 from odoo.addons.queue_job.job import Job
 
 

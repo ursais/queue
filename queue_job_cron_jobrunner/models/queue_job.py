@@ -6,18 +6,13 @@ import logging
 import traceback
 from io import StringIO
 
-from psycopg2 import OperationalError
-
 from odoo import _, api, models, tools
-from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
-
 from odoo.addons.queue_job.controllers.main import PG_RETRY
-from odoo.addons.queue_job.exception import (
-    FailedJobError,
-    NothingToDoJob,
-    RetryableJobError,
-)
+from odoo.addons.queue_job.exception import (FailedJobError, NothingToDoJob,
+                                             RetryableJobError)
 from odoo.addons.queue_job.job import Job
+from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
+from psycopg2 import OperationalError
 
 _logger = logging.getLogger(__name__)
 
