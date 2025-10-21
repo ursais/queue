@@ -155,7 +155,7 @@ import odoo
 from odoo.tools import config
 
 from . import queue_job_config
-from .channels import ENQUEUED, NOT_DONE, PENDING, ChannelManager
+from .channels import ENQUEUED, FAILED, NOT_DONE, PENDING, ChannelManager
 
 SELECT_TIMEOUT = 60
 ERROR_RECOVERY_DELAY = 5
@@ -214,20 +214,53 @@ def _async_http_get(scheme, host, port, user, password, db_name, job_uuid):
         conn = psycopg2.connect(**connection_info)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         with closing(conn.cursor()) as cr:
+            # First, get the current retry count and max_retries for the job
             cr.execute(
-                "UPDATE queue_job SET state=%s, "
-                "date_enqueued=NULL, date_started=NULL "
-                "WHERE uuid=%s and state=%s "
-                "RETURNING uuid",
-                (PENDING, job_uuid, ENQUEUED),
+                "SELECT retry, max_retries FROM queue_job WHERE uuid=%s AND state=%s",
+                (job_uuid, ENQUEUED),
             )
-            if cr.fetchone():
-                _logger.warning(
-                    "state of job %s was reset from %s to %s",
-                    job_uuid,
-                    ENQUEUED,
-                    PENDING,
+            result = cr.fetchone()
+            if not result:
+                return
+            
+            current_retry, max_retries = result
+            
+            # Increment retry count
+            new_retry = current_retry + 1
+            
+            # Check if we've exceeded max retries
+            if max_retries and new_retry >= max_retries:
+                # Mark job as failed due to timeout exceeding retry limit
+                cr.execute(
+                    "UPDATE queue_job SET state=%s, retry=%s, "
+                    "exc_name=%s, exc_message=%s, "
+                    "date_enqueued=NULL, date_started=NULL "
+                    "WHERE uuid=%s and state=%s "
+                    "RETURNING uuid",
+                    (FAILED, new_retry, "TimeoutError", 
+                     f"Job timed out after {new_retry} retries (max: {max_retries})", 
+                     job_uuid, ENQUEUED),
                 )
+                if cr.fetchone():
+                    _logger.warning(
+                        "Job %s failed due to timeout exceeding retry limit (%d/%d)",
+                        job_uuid, new_retry, max_retries
+                    )
+            else:
+                # Reset to pending with incremented retry count
+                cr.execute(
+                    "UPDATE queue_job SET state=%s, retry=%s, "
+                    "date_enqueued=NULL, date_started=NULL "
+                    "WHERE uuid=%s and state=%s "
+                    "RETURNING uuid",
+                    (PENDING, new_retry, job_uuid, ENQUEUED),
+                )
+                if cr.fetchone():
+                    _logger.warning(
+                        "state of job %s was reset from %s to %s (retry %d/%s)",
+                        job_uuid, ENQUEUED, PENDING, new_retry, 
+                        max_retries if max_retries else "∞"
+                    )
 
     # TODO: better way to HTTP GET asynchronously (grequest, ...)?
     #       if this was python3 I would be doing this with
