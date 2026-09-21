@@ -3,7 +3,8 @@
     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 */
 
-import {Component, useState} from "@odoo/owl";
+import { Component, proxy, usePlugin } from "@odoo/owl";
+import { UIPlugin } from "@web/core/ui/ui_plugin";
 import {ColumnProgress} from "@web/views/view_components/column_progress";
 import {Dropdown} from "@web/core/dropdown/dropdown";
 import {registry} from "@web/core/registry";
@@ -12,6 +13,7 @@ import {useDropdownState} from "@web/core/dropdown/dropdown_hooks";
 import {useService} from "@web/core/utils/hooks";
 import {user} from "@web/core/user";
 import {_t} from "@web/core/l10n/translation";
+import { ActionManagerPlugin } from "@web/webclient/actions/action_plugin";
 
 export class QueueJobBatchMenu extends Component {
     static template = "queue_job_batch.QueueJobBatchMenu";
@@ -24,10 +26,10 @@ export class QueueJobBatchMenu extends Component {
     setup() {
         super.setup();
         this.discussSystray = useDiscussSystray();
-        this.store = useState(useService("mail.store"));
-        this.action = useService("action");
+        this.store = proxy(useService("mail.store"));
+        this.action = usePlugin(ActionManagerPlugin);
         this.userId = user.userId;
-        this.ui = useState(useService("ui"));
+        this.ui = proxy(usePlugin(UIPlugin));
         this.dropdown = useDropdownState();
     }
 

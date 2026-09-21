@@ -1,0 +1,7 @@
+id,name,model_id,group_id/id,operation,domain
+queue_job_batch_comp_rule,Job Queue batch multi-company,model_queue_job_batch,,crud,"['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]"
+queue_job_batch_user_rule,Job Queue batch user filter,model_queue_job_batch,queue_job_batch.group_queue_job_batch_user,crud,"[('user_id', '=', user.id)]"
+queue_job_batch_manager_rule,Job Queue batch manager,model_queue_job_batch,queue_job.group_queue_job_manager,crud,"[(1, '=', 1)]"
+access_queue_job_batch_user,queue job manager,model_queue_job_batch,group_queue_job_batch_user,ru,
+access_queue_job_batch_manager,queue job manager,model_queue_job_batch,queue_job.group_queue_job_manager,crud,
+access_queue_job_queue_job_batch_user,queue job manager,queue_job.model_queue_job,group_queue_job_batch_user,r,
