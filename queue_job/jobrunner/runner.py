@@ -558,7 +558,7 @@ class QueueJobRunner:
                     if job_datas:
                         self.channel_manager.notify(db.db_name, *job_datas)
                     else:
-                        self.channel_manager.remove_job(uuid)
+                        self.channel_manager.remove_job(db.db_name, uuid)
 
     def wait_notification(self):
         for db in self.db_by_name.values():

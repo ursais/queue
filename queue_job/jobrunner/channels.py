@@ -1027,7 +1027,10 @@ class ChannelManager:
         self, db_name, channel_name, uuid, seq, date_created, priority, eta, state
     ):
         channel = self.get_channel_by_name(channel_name, parent_fallback=True)
-        job = self._jobs_by_uuid.get(uuid)
+        # Cloned databases on one server can share queue.job uuids. Key by
+        # database as well so loading the next database does not abort startup.
+        job_key = (db_name, uuid)
+        job = self._jobs_by_uuid.get(job_key)
         if job:
             # db_name is invariant
             assert job.db_name == db_name
@@ -1043,11 +1046,11 @@ class ChannelManager:
                 or channel != job.channel
             ):
                 _logger.debug("job %s properties changed, rescheduling it", uuid)
-                self.remove_job(uuid)
+                self.remove_job(db_name, uuid)
                 job = None
         if not job:
             job = ChannelJob(db_name, channel, uuid, seq, date_created, priority, eta)
-            self._jobs_by_uuid[uuid] = job
+            self._jobs_by_uuid[job_key] = job
         # state transitions
         if not state or state in (DONE, CANCELLED):
             job.channel.set_done(job)
@@ -1063,17 +1066,18 @@ class ChannelManager:
         else:
             _logger.error("unexpected state %s for job %s", state, job)
 
-    def remove_job(self, uuid):
-        job = self._jobs_by_uuid.get(uuid)
+    def remove_job(self, db_name, uuid):
+        job_key = (db_name, uuid)
+        job = self._jobs_by_uuid.get(job_key)
         if job:
             job.channel.remove(job)
-            del self._jobs_by_uuid[job.uuid]
+            del self._jobs_by_uuid[job_key]
 
     def remove_db(self, db_name):
-        for job in list(self._jobs_by_uuid.values()):
+        for job_key, job in list(self._jobs_by_uuid.items()):
             if job.db_name == db_name:
                 job.channel.remove(job)
-                del self._jobs_by_uuid[job.uuid]
+                del self._jobs_by_uuid[job_key]
 
     def get_jobs_to_run(self, now):
         return self._root_channel.get_jobs_to_run(now)
